@@ -1,5 +1,5 @@
 #include "../exercise.h"
-
+//constexpr关键字 修饰变量时强制要求编译器进行运算，修饰函数时表明该函数可以在编译时进行运算
 constexpr unsigned long long fibonacci(int i) {
     switch (i) {
         case 0:
@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 
     // TODO: 观察错误信息，修改一处，使代码编译运行
     // PS: 编译运行，但是不一定能算出结果……
-    constexpr auto ANS_N = 90;
+    constexpr auto ANS_N = 20;
     constexpr auto ANS = fibonacci(ANS_N);
     std::cout << "fibonacci(" << ANS_N << ") = " << ANS << std::endl;
 
