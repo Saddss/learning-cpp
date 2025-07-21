@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -21,16 +25,45 @@ struct Tensor4D {
     Tensor4D(Tensor4D const &) = delete;
     Tensor4D(Tensor4D &&) noexcept = delete;
 
-    // 这个加法需要支持“单向广播”。
+    // 这个加法需要支持"单向广播"。
     // 具体来说，`others` 可以具有与 `this` 不同的形状，形状不同的维度长度必须为 1。
     // `others` 长度为 1 但 `this` 长度不为 1 的维度将发生广播计算。
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        bool broadcast[4];
+        for (auto i = 0; i < 4; ++i) {
+            if (broadcast[i] = shape[i] != others.shape[i]) {
+                ASSERT(others.shape[i] == 1, "Broadcast dimension must be 1.");
+            }
+        }
+        auto dest = this->data;
+        auto src = others.data;
+        T *marks[4]{src};
+        for (auto i0 = 0u; i0 < shape[0]; ++i0) {
+            if (broadcast[0]) src = marks[0];
+            marks[1] = src;
+            for (auto i1 = 0u; i1 < shape[1]; ++i1) {
+                if (broadcast[1]) src = marks[1];
+                marks[2] = src;
+                for (auto i2 = 0u; i2 < shape[2]; ++i2) {
+                    if (broadcast[2]) src = marks[2];
+                    marks[3] = src;
+                    for (auto i3 = 0u; i3 < shape[3]; ++i3) {
+                        if (broadcast[3]) src = marks[3];
+                        *dest++ += *src++;
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
+
+// 添加推导指南以支持模板参数自动推导
+template<class T>
+Tensor4D(unsigned int const[4], T const *) -> Tensor4D<T>;
 
 // ---- 不要修改以下代码 ----
 int main(int argc, char **argv) {
