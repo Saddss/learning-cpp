@@ -21,7 +21,10 @@ public:
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t get(int i) {
-        for (; false; ++cached) {
+        if (i < 0) return 0;
+        if (i == 0) return cache[0];
+        if (i == 1) return cache[1];
+        for (; cached <= i; ++cached) {
             cache[cached] = cache[cached - 1] + cache[cached - 2];
         }
         return cache[i];
@@ -30,7 +33,8 @@ public:
 
 int main(int argc, char **argv) {
     DynFibonacci fib(12);
-    ASSERT(fib.get(10) == 55, "fibonacci(10) should be 55");
     std::cout << "fibonacci(10) = " << fib.get(10) << std::endl;
+    ASSERT(fib.get(10) == 55, "fibonacci(10) should be 55");
+
     return 0;
 }
